@@ -10,7 +10,7 @@ from airflow.contrib.operators.spark_submit_operator import SparkSubmitOperator
 
 
 debug = Variable.get("debug")
-
+spark_master_url = Variable.get("spark_master_url")
 logger = logging.getLogger(__name__)
 
 
@@ -105,6 +105,7 @@ with DAG(dag_id=info['dag_id'],
             task_id='test_dag_dev_mode',
             conn_id='sparkmaster_test',
             application='./dags/"REPOSITORY_NAME"/spark_test/sample_spark_test.py',
+            application_args=[spark_master_url],
             jars=info['jars'],
             name="spark_task_test_dag_dev_mode"
         )
@@ -129,7 +130,9 @@ with DAG(dag_id=info['dag_id'],
                 db_port = dag_info_data['db_port']
                 db_service_name = dag_info_data['db_service_name']
                 cs = f"{db_username}/{db_password}@{db_ip}:{db_port}/{db_service_name}"
-                load_cutoff(cs)
+                cutoff_data = load_cutoff(cs)
+                message = {"task_load_cutoff_done": str(cutoff_data)}
+                logger.info(str(message))
             except Exception as e:
                 message = {"task_load_cutoff_error": str(e)}
                 logger.info(str(message))
