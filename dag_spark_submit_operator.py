@@ -1,4 +1,6 @@
-import logging, json, oracledb
+import logging
+import json
+import oracledb
 from airflow import DAG
 from airflow.decorators import task
 from airflow.operators.empty import EmptyOperator
@@ -21,9 +23,6 @@ def load_cutoff(cs, **kwargs):
 
     try:
         connection = oracledb.connect(cs)
-        cutoff_data = {
-            "tables": []
-        }
         with connection.cursor() as cursor:
             tables = tuple(i for i in table_names['tables'])
             # CUTOFF_TABLE_NAME = your cutoff table from any database you want (in this case i use oracle "don't use oracle :D")
@@ -31,15 +30,12 @@ def load_cutoff(cs, **kwargs):
                 f'select * from CUTOFF_TABLE_NAME where table_name in {tables} ')
             cutoff = cursor.execute(sql)
             for i in cutoff:
-                cutoff_data.append(
-                    {
-                        "table_name": i[0],
-                        "cutoff_time": i[1],
-                        "cutoff_id": i[2]
-                    }
-                )        
-        ti.xcom_push(key='cutoff_'+str(dag_id),
-                        value=json.dumps(cutoff_data))
+                ti.xcom_push(key='cutoff_'+str(dag_id)+'_'+str(i[0]),
+                             value=json.dumps({
+                                 "table_name": i[0],
+                                 "cutoff_time": i[1],
+                                 "cutoff_id": i[2]
+                             }))
         message = {"cutoff_xcom": "pushed"}
         logger.info(str(message))
         return "data_pushed_to_xcom"
@@ -62,7 +58,7 @@ if debug == 'true':
         "is_paused_upon_creation": True,
         "jars": 'your custom jars for spark jobs',
         # for examle "jars": 'PATH/mssql-jdbc-12.2.0.jre8.jar,PATH/ojdbc8.jar'
-        # for use mssql and oracle connection 
+        # for use mssql and oracle connection
         "owner": 'dag owner name',
         "schedule_interval": '@once'
         # in development mode we set once because it's development and we want to run and debug our dag :D
@@ -75,7 +71,7 @@ else:
         "is_paused_upon_creation": False,
         "jars": 'your custom jars for spark jobs',
         # for examle "jars": 'PATH/mssql-jdbc-12.2.0.jre8.jar,PATH/ojdbc8.jar'
-        # for use mssql and oracle connection 
+        # for use mssql and oracle connection
         "owner": 'dag owner name',
         "schedule_interval": '@once'
         # this is for production and you can setup any schedule you want
@@ -97,16 +93,14 @@ with DAG(dag_id=info['dag_id'],
          catchup=False,
          tags=['you_tag'],
          # if you have several dags for a service or product that can be seprated
-         # you can set tag for search in airflow pannel 
+         # you can set tag for search in airflow pannel
          is_paused_upon_creation=info['is_paused_upon_creation']
          ) as dag:
 
     if debug == 'true':
-    
-        
+
         start = EmptyOperator(task_id='start_dag_dev_mode')
-        
-        
+
         test_dag_dev_mode = SparkSubmitOperator(
             task_id='test_dag_dev_mode',
             conn_id='sparkmaster_test',
@@ -139,7 +133,6 @@ with DAG(dag_id=info['dag_id'],
             except Exception as e:
                 message = {"task_load_cutoff_error": str(e)}
                 logger.info(str(message))
-
 
         spark_example_task = SparkSubmitOperator(
             task_id='spark_example_task',
