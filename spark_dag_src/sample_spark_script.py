@@ -1,26 +1,25 @@
-import pytest
-
 from pyspark.sql import SparkSession
+import sys
+spark = SparkSession.builder.appName('sample_pyspark_script').master(str(sys.argv[1])).getOrCreate()
+try:
+    data = [("Finance",10), \
+        ("Marketing",20), \
+        ("Sales",30), \
+        ("IT",40) \
+    ]
+    columns = ["name","id"]
+    df = spark.createDataFrame(data=data, schema = columns)
+    df.printSchema()
+    df.show(truncate=False)
 
-@pytest.fixture(scope="session")
-def spark_test_session():
-    return (
-        SparkSession
-        .builder
-        .master('local[*]')
-        .appName('unit-testing')
-        .getOrCreate()
-    )
+    dataCollect = df.collect()
 
+    print(dataCollect)
 
-def test_conditional_count(spark_test_session):
-    """
-    Test the count function with condition
-    :param spark_test_session:
-    :return:
-    """
-    expected_data = [(2112, 3), (2343, 2), (3981, 0)]
+    dataCollect2 = df.select("dept_name").collect()
+    print(dataCollect2)
 
-    expected_df = spark_test_session.createDataFrame(expected_data, ["employee_id", "total_car_owners"])
-    expect_data = expected_df.count()
-    assert expect_data == 3
+    for row in dataCollect:
+        print(row['name'] + "," +str(row['id']))
+except Exception as e:
+    print(e)

@@ -7,12 +7,13 @@ from airflow.operators.empty import EmptyOperator
 from datetime import datetime, timedelta
 from airflow.models import Variable
 from airflow.contrib.operators.spark_submit_operator import SparkSubmitOperator
+from airflow.operators.bash import BashOperator
 
 
 debug = Variable.get("debug")
 spark_master_url = Variable.get("spark_master_url")
 logger = logging.getLogger(__name__)
-
+REPOSITORY_NAME="repo_name"
 
 def load_cutoff(cs, **kwargs):
     ti = kwargs['ti']
@@ -101,14 +102,11 @@ with DAG(dag_id=info['dag_id'],
 
         start = EmptyOperator(task_id='start_dag_dev_mode')
 
-        test_dag_dev_mode = SparkSubmitOperator(
+        test_dag_dev_mode = BashOperator(
             task_id='test_dag_dev_mode',
-            conn_id='sparkmaster_test',
-            application='./dags/"REPOSITORY_NAME"/spark_test/sample_spark_test.py',
-            application_args=[spark_master_url],
-            jars=info['jars'],
-            name="spark_task_test_dag_dev_mode"
+            bash_command=f'pytest ./dags/{REPOSITORY_NAME}/spark_test/sample_spark_test.py',
         )
+
         end = EmptyOperator(task_id='end_dag_dev_mode')
 
         dag.doc_md = __doc__  # providing that you have a docstring at the beginning of the DAG; OR
@@ -140,7 +138,8 @@ with DAG(dag_id=info['dag_id'],
         spark_example_task = SparkSubmitOperator(
             task_id='spark_example_task',
             conn_id='sparkmaster_production',
-            application='./dags/"REPOSITORY_NAME"/spark_dag_src/sample_spark_script.py',
+            application_args=["sparkmaster.tasn.ir:7077"],
+            application=f'./dags/{REPOSITORY_NAME}/spark_dag_src/sample_spark_script.py',
             jars=info['jars'],
             name="spark_task_dag_production_mode"
         )
