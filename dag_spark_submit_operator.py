@@ -1,6 +1,4 @@
-import logging
-import json
-import oracledb
+import logging, json, oracledb
 from airflow import DAG
 from airflow.decorators import task
 from airflow.operators.empty import EmptyOperator
