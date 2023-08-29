@@ -1,0 +1,39 @@
+# compelete the variables
+# run and enjoy the ci cd :D 
+stages:
+  - dev-release
+  - prod-release
+
+before_script:
+  - date
+   
+Development Release:
+  stage: dev-release
+  image: "YOUR_REGISTERY_IMAGE"
+  before_script:
+    - date
+  script: 
+    - echo "Develop" 
+    - sshpass -p ${DEPLOYMENT_SERVER_PASS} ssh -o StrictHostKeyChecking=no gitlab-runner@YOUR_AIRFLOW_HOST_IP 'echo "machine "GITLAB_URL" login '${GO_MOD_USER}' password '${GO_MOD_TOKEN}'" > ~/.netrc'
+    # chmod 777 for dag access to write dag logs
+    - sshpass -p ${DEPLOYMENT_SERVER_PASS} ssh -o StrictHostKeyChecking=no gitlab-runner@YOUR_AIRFLOW_HOST_IP 'cd "AIRFLOW_DEVELOPMENT_PATH"/dags/ && sudo rm -rf ./REPO_NAME  && git clone PRODUCTION_REPO_URL -b dev && sudo chmod -R 777 AIRFLOW_DEVELOPMENT_PATH/dags/ && sudo chmod -R 777 AIRFLOW_DEVELOPMENT_PATH/logs/' 
+
+  only:
+    - /^v\d{1,9}\.\d{1,9}\.\d{1,9}-[d][e][v]$/
+  tags:
+    - build
+
+Production Release:
+  stage: prod-release
+  image: "YOUR_REGISTERY_PRODUCTION_IMAGE"
+  before_script:
+    - date
+  script: 
+    - echo "Production" 
+    - sshpass -p ${DEPLOYMENT_SERVER_PASS} ssh -o StrictHostKeyChecking=no gitlab-runner@YOUR_AIRFLOW_HOST_IP 'echo machine GITLAB_URL login '${GO_MOD_USER}' password '${GO_MOD_TOKEN}'" > ~/.netrc'
+    # chmod 777 for dag access to write dag logs
+    - sshpass -p ${DEPLOYMENT_SERVER_PASS} ssh -o StrictHostKeyChecking=no gitlab-runner@YOUR_AIRFLOW_HOST_IP 'cd AIRFLOW_PRODUCTION/dags/ && sudo rm -rf ./"REPO_NAME"  && git clone "PRODUCTION_REPO_URL" -b master && sudo chmod -R 777 /data/Airflow/dags/ && sudo chmod -R 777 /data/Airflow/logs/' 
+  only:
+    - /^v\d{1,9}\.\d{1,9}\.\d{1,9}-[r][e][l][e][a][s][e]$/
+  tags:
+    - build
