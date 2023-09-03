@@ -56,6 +56,8 @@ if debug == 'true':
         "dag_id": 'your_dag_id_dev',
         "description": 'example dag for development env',
         "start_date": datetime(2023, 8, 15, 4),
+        # is paused upon creation is for running dag by default when set this True 
+        # it's off
         "is_paused_upon_creation": True,
         "jars": 'your custom jars for spark jobs',
         # for examle "jars": 'PATH/mssql-jdbc-12.2.0.jre8.jar,PATH/ojdbc8.jar'
@@ -69,6 +71,8 @@ else:
         "dag_id": 'your_dag_id_production',
         "description": 'example dag for development env',
         "start_date": datetime(2023, 8, 15, 4),
+        # is paused upon creation is for running dag by default when set this True 
+        # it's on
         "is_paused_upon_creation": False,
         "jars": 'your custom jars for spark jobs',
         # for examle "jars": 'PATH/mssql-jdbc-12.2.0.jre8.jar,PATH/ojdbc8.jar'
