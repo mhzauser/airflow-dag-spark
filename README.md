@@ -1,39 +1,49 @@
-# Example Airflow Dag with Spark Submit and Spark Simple Test
+# Airflow DAG with SparkSubmitOperator Sample
 
-this project helps you to create first airflow dag
+This repository contains a sample Airflow DAG (Directed Acyclic Graph) that uses the SparkSubmitOperator to submit Spark jobs. This is a basic setup to demonstrate how to integrate Apache Airflow with Apache Spark using the SparkSubmitOperator.
 
-## Description
-We Setup Data platform Includes (Apache Spark Cluster, Apache Airflow (Development and Production), Apache Superset)
-and we worked on several Data projects and our challange was that we wanted to work on projects separated and wanted to workflow for read this journey read this article [commit change]()
-In this repository  I wanted to write the sample dag to help others in this workflow.
-let's get start! 
+## Project Structure
 
+The project is organized as follows:
 
-### Dependencies
-you have to install this dependencies on airflow machine:
-```
-pip install -r requirements.txt
-```
+- **spark_dag_src/**: This directory contains Spark applications that serve as tasks for your DAG. You can place your Spark job scripts here.
+
+- **spark_test/**: This directory contains unit tests for your Spark tasks. It's important to thoroughly test your Spark code to ensure it behaves as expected.
+
+- **dag_spark_submit_operator.py**: This is the main Airflow DAG definition file. It orchestrates the execution of Spark jobs using the SparkSubmitOperator. You can customize this file to define your DAG structure.
 
 ## Getting Started
-After Implementing the Infrastructure in your company or setup the environment on your machine
-* clone the project to AIRFLOW_PATH/dags and airflow automatically find the dag 
-* for gitlab
-    * setup you repository
-    * create dev branch for airflow development mode 
-    * set tag for example v0.0.1release or v0.0.1dev 
-    * gitlab runners worked and send code to airflow 
 
-## Authors
+Follow these steps to get started with the project:
 
-Contributors names and contact info
+### Prerequisites
 
-Call me Megahertz
+- Git (for cloning the repository)
+- Python (for running Airflow and installing dependencies)
+- Apache Airflow (if not already installed, you can follow the [official installation guide](https://airflow.apache.org/docs/apache-airflow/stable/start.html))
+- Apache Spark (if not already installed, you can follow the [official installation guide](https://spark.apache.org/docs/latest/api/python/getting_started/index.html))
+- install the libs with requirements.txt 
+  ```bash
+    pip install -r requirements.txt
+  ```
+- Change Gitlab-ci variables
+  ```bash
+  YOUR_REGISTERY_IMAGE, AIRFLOW_DEVELOPMENT_PATH, PRODUCTION_REPO_URL, YOUR_REGISTERY_PRODUCTION_IMAGE, YOUR_AIRFLOW_HOST_IP, PRODUCTION_REPO_URL
+  ```
+- Read the Dag Code and change the info with your custom Variables
 
-Email : [mhzuser96@gmail.com](mhzuser96@gmail.com)
+### Clone the Repository
 
-## Acknowledgments
+```bash
+git clone https://github.com/mhzauser/airflow-dag-spark.git
+```
+### setup your environment
+- clone the project and setup changes
+- when set the tag and runners start your dag update automatically
 
-Apache Airflow, Apache Spark
-* [Apache Airflow](https://airflow.apache.org)
-* [Apache Spark](https://spark.apache.org)
+enjoy :D
+
+### TODO 
+- [ ] description for dag
+- [ ] description for cutoff and lineage concept
+
